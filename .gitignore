@@ -38,3 +38,27 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Secret configuration files ###
+application-secret.yml
+application-local.yml
+
+### HTTP request files ###
+*.http
+**/*.http
+
+### Environment variables ###
+.env
+.env.local
+
+### Database ###
+*.db
+*.sqlite
+
+### Logs ###
+*.log
+logs/
+
+### OS ###
+.DS_Store
+Thumbs.db
