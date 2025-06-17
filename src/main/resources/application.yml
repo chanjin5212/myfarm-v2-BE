@@ -13,6 +13,13 @@ spring:
     username: ${spring.datasource.username}
     password: ${spring.datasource.password}
     driver-class-name: ${spring.datasource.driver-class-name}
+    hikari:
+      maximum-pool-size: 3        # Supabase 무료는 60개 제한이므로 낮게 설정
+      minimum-idle: 2
+      idle-timeout: 300000        # 5분
+      connection-timeout: 20000   # 20초
+      max-lifetime: 1200000       # 20분
+      leak-detection-threshold: 60000  # 연결 누수 감지
   jpa:
     open-in-view: false
     hibernate:
