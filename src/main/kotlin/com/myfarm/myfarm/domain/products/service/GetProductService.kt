@@ -1,15 +1,22 @@
 package com.myfarm.myfarm.domain.products.service
 
 import com.myfarm.myfarm.adapter.`in`.web.products.message.GetProduct
-import com.myfarm.myfarm.domain.products.entity.Products
+import com.myfarm.myfarm.domain.productattributes.port.ProductAttributesRepository
+import com.myfarm.myfarm.domain.productimages.port.ProductImagesRepository
+import com.myfarm.myfarm.domain.productoptions.port.ProductOptionsRepository
 import com.myfarm.myfarm.domain.products.port.ProductsRepository
+import com.myfarm.myfarm.domain.producttags.port.ProductTagsRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Service
 class GetProductService(
-    private val productsRepository: ProductsRepository
+    private val productsRepository: ProductsRepository,
+    private val productImagesRepository: ProductImagesRepository,
+    private val productOptionsRepository: ProductOptionsRepository,
+    private val productAttributesRepository: ProductAttributesRepository,
+    private val productTagsRepository: ProductTagsRepository
 ) {
 
     @Transactional(readOnly = true)
@@ -17,10 +24,40 @@ class GetProductService(
         val product = productsRepository.findById(id)
             ?: throw IllegalArgumentException("존재하지 않는 상품입니다")
 
-        // 비활성 상품은 조회 불가 (관리자 제외)
-        if (product.status != Products.Status.ACTIVE) {
-            throw IllegalArgumentException("조회할 수 없는 상품입니다")
-        }
+        val images = productImagesRepository.findByProductId(id)
+            .sortedBy { it.sortOrder }
+            .map { image ->
+                GetProduct.ProductImageInfo(
+                    id = image.id,
+                    imageUrl = image.imageUrl,
+                    isThumbnail = image.isThumbnail,
+                    sortOrder = image.sortOrder
+                )
+            }
+
+        val options = productOptionsRepository.findByProductId(id)
+            .map { option ->
+                GetProduct.ProductOptionInfo(
+                    id = option.id,
+                    optionName = option.optionName,
+                    optionValue = option.optionValue,
+                    additionalPrice = option.additionalPrice,
+                    stock = option.stock,
+                    isDefault = option.isDefault
+                )
+            }
+
+        val attributes = productAttributesRepository.findByProductId(id)
+            .map { attribute ->
+                GetProduct.ProductAttributeInfo(
+                    id = attribute.id,
+                    attributeName = attribute.attributeName,
+                    attributeValue = attribute.attributeValue
+                )
+            }
+
+        val tags = productTagsRepository.findByProductId(id)
+            .map { it.tag }
 
         return GetProduct.Response(
             id = product.id,
@@ -37,7 +74,11 @@ class GetProductService(
             isOrganic = product.isOrganic,
             orderCount = product.orderCount,
             createdAt = product.createdAt,
-            updatedAt = product.updatedAt
+            updatedAt = product.updatedAt,
+            images = images,
+            options = options,
+            attributes = attributes,
+            tags = tags
         )
     }
 }

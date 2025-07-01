@@ -1,9 +1,9 @@
 package com.myfarm.myfarm.domain.products.service
 
 import com.myfarm.myfarm.adapter.`in`.web.products.message.ListProduct
+import com.myfarm.myfarm.domain.categories.port.CategoriesRepository
 import com.myfarm.myfarm.domain.products.entity.Products
 import com.myfarm.myfarm.domain.products.port.ProductsRepository
-import com.myfarm.myfarm.domain.categories.port.CategoriesRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

@@ -1,11 +1,11 @@
 package com.myfarm.myfarm.adapter.out.persistence.products
 
-import com.querydsl.core.types.OrderSpecifier
-import com.querydsl.core.types.dsl.BooleanExpression
-import com.querydsl.jpa.impl.JPAQueryFactory
 import com.myfarm.myfarm.domain.products.entity.Products
 import com.myfarm.myfarm.domain.products.entity.QProducts.products
 import com.myfarm.myfarm.domain.products.port.ProductsSearchCommand
+import com.querydsl.core.types.OrderSpecifier
+import com.querydsl.core.types.dsl.BooleanExpression
+import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -16,12 +16,7 @@ class ProductsAdapter(
     private val queryFactory: JPAQueryFactory
 ) {
     fun search(command: ProductsSearchCommand, pageable: Pageable): Page<Products> {
-        println("=== ProductsAdapter.search ===")
-        println("command: $command")
-        println("pageable: $pageable")
-
         val conditions = buildConditions(command)
-        println("conditions: $conditions")
 
         val content = queryFactory
             .selectFrom(products)
@@ -31,15 +26,11 @@ class ProductsAdapter(
             .limit(pageable.pageSize.toLong())
             .fetch()
 
-        println("content size: ${content.size}")
-
         val total = queryFactory
             .select(products.count())
             .from(products)
             .where(*conditions.toTypedArray())
             .fetchOne() ?: 0L
-
-        println("total: $total")
 
         return PageImpl(content, pageable, total)
     }
@@ -49,8 +40,11 @@ class ProductsAdapter(
             products.status.eq(command.status),
             command.categoryId?.let { products.categoryId.eq(it) },
             command.keyword?.let {
-                if (it.isBlank()) null
-                else products.name.containsIgnoreCase(it.trim())
+                if (it.isBlank()) {
+                    null
+                } else {
+                    products.name.containsIgnoreCase(it.trim())
+                }
             },
             command.minPrice?.let { products.price.goe(it) },
             command.maxPrice?.let { products.price.loe(it) }

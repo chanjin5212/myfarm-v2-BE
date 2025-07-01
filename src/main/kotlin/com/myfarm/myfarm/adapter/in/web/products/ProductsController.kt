@@ -37,7 +37,7 @@ class ProductsController(
         @RequestBody request: CreateProduct.Request
     ): CreateProduct.Response {
         myfarmAuth.checkAdminPermission()
-        return createProductService.createProduct(request, myfarmAuth.userId)
+        return createProductService.createProduct(myfarmAuth.userId, request)
     }
 
     @GetMapping("/{id}")
