@@ -79,7 +79,8 @@ class SecurityConfig(
                         "/api/email-verifications/v1/send",
                         "/api/email-verifications/v1/verify",
                         "/api/users/v1/register",
-                        "/api/users/v1/login"
+                        "/api/users/v1/login",
+                        "/api/users/v1/check-duplicate"
                     ).permitAll()
                     .anyRequest().authenticated()
             }

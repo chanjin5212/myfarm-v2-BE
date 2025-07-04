@@ -8,9 +8,7 @@ interface ShipmentsJpaRepository : JpaRepository<Shipments, UUID> {
 
     fun findByOrderId(orderId: UUID): Shipments?
 
-    fun findByTrackingNumber(trackingNumber: String): Shipments?
-
-    fun findByStatus(status: String): List<Shipments>
+    fun existsByOrderId(orderId: UUID): Boolean
 
     fun existsByTrackingNumber(trackingNumber: String): Boolean
 }

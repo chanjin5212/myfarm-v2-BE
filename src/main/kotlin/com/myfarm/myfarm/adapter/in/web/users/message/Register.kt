@@ -6,7 +6,11 @@ abstract class Register {
         val loginId: String,
         val password: String,
         val name: String,
+        val nickname: String? = null,
         val phoneNumber: String? = null,
+        val postcode: String? = null,
+        val address: String? = null,
+        val detailAddress: String? = null,
         val termsAgreed: Boolean,
         val marketingAgreed: Boolean = false
     )

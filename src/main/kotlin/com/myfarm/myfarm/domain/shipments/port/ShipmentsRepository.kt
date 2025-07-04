@@ -19,12 +19,8 @@ class ShipmentsRepository(
         return shipmentsJpaRepository.findByOrderId(orderId)
     }
 
-    fun findByTrackingNumber(trackingNumber: String): Shipments? {
-        return shipmentsJpaRepository.findByTrackingNumber(trackingNumber)
-    }
-
-    fun findByStatus(status: String): List<Shipments> {
-        return shipmentsJpaRepository.findByStatus(status)
+    fun existsByOrderId(orderId: UUID): Boolean {
+        return shipmentsJpaRepository.existsByOrderId(orderId)
     }
 
     fun existsByTrackingNumber(trackingNumber: String): Boolean {
@@ -35,7 +31,15 @@ class ShipmentsRepository(
         return shipmentsJpaRepository.save(shipment)
     }
 
+    fun saveAll(shipments: List<Shipments>): List<Shipments> {
+        return shipmentsJpaRepository.saveAll(shipments)
+    }
+
     fun deleteById(id: UUID) {
         shipmentsJpaRepository.deleteById(id)
+    }
+
+    fun deleteAllById(ids: List<UUID>) {
+        shipmentsJpaRepository.deleteAllById(ids)
     }
 }

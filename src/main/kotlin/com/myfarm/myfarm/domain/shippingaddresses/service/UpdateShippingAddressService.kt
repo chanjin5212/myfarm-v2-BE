@@ -1,7 +1,7 @@
 package com.myfarm.myfarm.domain.shippingaddresses.service
 
-import com.myfarm.myfarm.adapter.`in`.web.shippingaddresses.message.CreateShippingAddress
-import com.myfarm.myfarm.domain.shippingaddresses.entity.ShippingAddresses
+import com.myfarm.myfarm.adapter.`in`.web.shippingaddresses.message.UpdateShippingAddress
+import com.myfarm.myfarm.domain.common.checkOwnership
 import com.myfarm.myfarm.domain.shippingaddresses.port.ShippingAddressesRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -9,12 +9,15 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
-class CreateShippingAddressService(
+class UpdateShippingAddressService(
     private val shippingAddressesRepository: ShippingAddressesRepository
 ) {
 
     @Transactional
-    fun createShippingAddress(userId: UUID, request: CreateShippingAddress.Request): CreateShippingAddress.Response {
+    fun updateShippingAddress(userId: UUID, id: UUID, request: UpdateShippingAddress.Request): UpdateShippingAddress.Response {
+        val existingAddress = shippingAddressesRepository.findById(id)
+            .checkOwnership(userId)
+
         if (request.recipientName.isBlank()) {
             throw IllegalArgumentException("받는 사람 이름은 필수입니다")
         }
@@ -27,9 +30,10 @@ class CreateShippingAddressService(
             throw IllegalArgumentException("주소는 필수입니다")
         }
 
-        if (request.isDefault) {
-            val existingDefaultAddress = shippingAddressesRepository.findByUserIdAndIsDefault(userId, true)
-            existingDefaultAddress?.let { address ->
+        // 기본 배송지로 설정하려는 경우, 기존 기본 배송지를 해제
+        if (request.isDefault && !existingAddress.isDefault) {
+            val currentDefaultAddress = shippingAddressesRepository.findByUserIdAndIsDefault(userId, true)
+            currentDefaultAddress?.let { address ->
                 val updatedAddress = address.copy(
                     isDefault = false,
                     updatedAt = LocalDateTime.now()
@@ -38,25 +42,21 @@ class CreateShippingAddressService(
             }
         }
 
-        val now = LocalDateTime.now()
-        val shippingAddress = ShippingAddresses(
-            id = UUID.randomUUID(),
-            userId = userId,
+        val updatedAddress = existingAddress.copy(
             recipientName = request.recipientName,
             phone = request.phone,
             address = request.address,
             detailAddress = request.detailAddress,
             isDefault = request.isDefault,
             memo = request.memo,
-            createdAt = now,
-            updatedAt = now
+            updatedAt = LocalDateTime.now()
         )
 
-        shippingAddressesRepository.save(shippingAddress)
+        shippingAddressesRepository.save(updatedAddress)
 
-        return CreateShippingAddress.Response(
+        return UpdateShippingAddress.Response(
             success = true,
-            message = "배송지가 추가되었습니다"
+            message = "배송지가 수정되었습니다"
         )
     }
 }

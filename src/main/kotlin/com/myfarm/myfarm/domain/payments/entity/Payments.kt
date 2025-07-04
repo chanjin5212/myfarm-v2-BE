@@ -1,4 +1,4 @@
-package com.myfarm.myfarm.domain.shipments.entity
+package com.myfarm.myfarm.domain.payments.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -12,32 +12,26 @@ import java.util.UUID
 
 @Entity
 @DynamicUpdate
-@Table(name = "shipments")
-data class Shipments(
+@Table(name = "payments")
+data class Payments(
     @Id
     val id: UUID = UUID.randomUUID(),
 
     val orderId: UUID,
 
-    val trackingNumber: String,
+    val paymentKey: String,
 
-    val carrier: String,
+    val paymentMethod: String,
 
-    val status: String = "ready",
+    val paymentProvider: String,
 
-    val shippedAt: LocalDateTime? = null,
+    val amount: Int,
 
-    val deliveredAt: LocalDateTime? = null,
+    val status: String,
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    val trackingDetails: String? = null,
-
-    val lastUpdated: LocalDateTime? = null,
-
-    val adminNotes: String? = null,
-
-    val carrierName: String? = null,
+    val paymentDetails: Any? = null,
 
     val createdAt: LocalDateTime = LocalDateTime.now(),
 

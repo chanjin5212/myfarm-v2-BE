@@ -26,6 +26,10 @@ class UsersRepository(
         return usersJpaRepository.existsByLoginId(loginId)
     }
 
+    fun existsByNickname(nickname: String): Boolean {
+        return usersJpaRepository.existsByNickname(nickname)
+    }
+
     fun save(user: Users): Users {
         return usersJpaRepository.save(user)
     }

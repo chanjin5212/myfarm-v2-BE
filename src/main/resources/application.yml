@@ -20,6 +20,11 @@ spring:
       connection-timeout: 20000   # 20초
       max-lifetime: 1200000       # 20분
       leak-detection-threshold: 60000  # 연결 누수 감지
+      # Prepared statement 캐시 비활성화 (PostgreSQL 에러 방지)
+      data-source-properties:
+        cachePrepStmts: false
+        prepStmtCacheSize: 0
+        prepStmtCacheSqlLimit: 0
   jpa:
     open-in-view: false
     hibernate:

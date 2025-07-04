@@ -1,8 +1,8 @@
 package com.myfarm.myfarm.domain.shippingaddresses.service
 
 import com.myfarm.myfarm.adapter.`in`.web.shippingaddresses.message.GetShippingAddress
-import com.myfarm.myfarm.domain.shippingaddresses.port.ShippingAddressesRepository
 import com.myfarm.myfarm.domain.common.checkOwnership
+import com.myfarm.myfarm.domain.shippingaddresses.port.ShippingAddressesRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID

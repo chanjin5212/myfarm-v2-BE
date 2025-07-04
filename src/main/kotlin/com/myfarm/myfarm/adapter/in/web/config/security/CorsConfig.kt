@@ -11,7 +11,7 @@ class CorsConfig {
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
-        configuration.allowedOrigins = listOf("*")
+        configuration.allowedOriginPatterns = listOf("*")
         configuration.allowedMethods = listOf("*")
         configuration.allowedHeaders = listOf("*")
         configuration.allowCredentials = true
