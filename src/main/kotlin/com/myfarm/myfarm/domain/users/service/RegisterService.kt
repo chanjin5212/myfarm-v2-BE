@@ -2,6 +2,8 @@ package com.myfarm.myfarm.domain.users.service
 
 import com.myfarm.myfarm.adapter.`in`.web.users.message.Register
 import com.myfarm.myfarm.domain.emailverifications.port.EmailVerificationsRepository
+import com.myfarm.myfarm.domain.shippingaddresses.entity.ShippingAddresses
+import com.myfarm.myfarm.domain.shippingaddresses.port.ShippingAddressesRepository
 import com.myfarm.myfarm.domain.users.entity.Users
 import com.myfarm.myfarm.domain.users.port.EmailSender
 import com.myfarm.myfarm.domain.users.port.UsersRepository
@@ -16,7 +18,8 @@ class RegisterService(
     private val usersRepository: UsersRepository,
     private val passwordEncoder: PasswordEncoder,
     private val emailVerificationsRepository: EmailVerificationsRepository,
-    private val emailSender: EmailSender
+    private val emailSender: EmailSender,
+    private val shippingAddressesRepository: ShippingAddressesRepository
 ) {
 
     @Transactional
@@ -63,6 +66,21 @@ class RegisterService(
         )
 
         val savedUser = usersRepository.save(user)
+
+        val defaultShippingAddress = ShippingAddresses(
+            id = UUID.randomUUID(),
+            userId = savedUser.id,
+            recipientName = savedUser.name!!,
+            phone = savedUser.phoneNumber!!,
+            address = savedUser.address!!,
+            detailAddress = savedUser.detailAddress,
+            isDefault = true,
+            memo = "기본 배송지",
+            createdAt = now,
+            updatedAt = now
+        )
+
+        shippingAddressesRepository.save(defaultShippingAddress)
 
         emailVerificationsRepository.deleteByEmail(request.email)
 

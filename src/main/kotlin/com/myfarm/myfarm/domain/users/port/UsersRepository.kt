@@ -37,4 +37,8 @@ class UsersRepository(
     fun findByEmail(email: String): Users? {
         return usersJpaRepository.findByEmail(email)
     }
+
+    fun findByEmailAndLoginId(email: String, loginId: String): Users? {
+        return usersJpaRepository.findByEmailAndLoginId(email, loginId)
+    }
 }

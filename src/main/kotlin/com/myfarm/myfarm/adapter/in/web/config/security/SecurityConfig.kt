@@ -8,6 +8,8 @@ import com.myfarm.myfarm.adapter.`in`.web.config.security.oauth2.CustomOAuth2Use
 import com.myfarm.myfarm.adapter.`in`.web.config.security.oauth2.OAuth2AuthenticationFailureHandler
 import com.myfarm.myfarm.adapter.`in`.web.config.security.oauth2.OAuth2AuthenticationSuccessHandler
 import com.myfarm.myfarm.domain.users.port.UsersRepository
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
@@ -16,8 +18,10 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
@@ -53,13 +57,23 @@ class SecurityConfig(
     }
 
     @Bean
+    fun authenticationEntryPoint(): AuthenticationEntryPoint {
+        return AuthenticationEntryPoint { request: HttpServletRequest, response: HttpServletResponse, authException: AuthenticationException ->
+            response.contentType = "application/json;charset=UTF-8"
+            response.status = HttpServletResponse.SC_UNAUTHORIZED
+            response.writer.write("""{"error": "Unauthorized", "message": "인증이 필요합니다"}""")
+        }
+    }
+
+    @Bean
     fun filterChain(
         http: HttpSecurity,
         environment: Environment,
         corsConfigurationSource: CorsConfigurationSource,
         myfarmUserDetailsService: MyfarmUserDetailsService,
         authenticationManager: AuthenticationManager,
-        securityContextRepository: SecurityContextRepository
+        securityContextRepository: SecurityContextRepository,
+        authenticationEntryPoint: AuthenticationEntryPoint
     ): SecurityFilterChain {
         val httpSecurity = http
             .cors { cors ->
@@ -73,6 +87,9 @@ class SecurityConfig(
                     .sessionCreationPolicy(SessionCreationPolicy.NEVER)
                     .maximumSessions(1)
             }
+            .exceptionHandling { exceptions ->
+                exceptions.authenticationEntryPoint(authenticationEntryPoint)
+            }
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(
@@ -80,7 +97,10 @@ class SecurityConfig(
                         "/api/email-verifications/v1/verify",
                         "/api/users/v1/register",
                         "/api/users/v1/login",
-                        "/api/users/v1/check-duplicate"
+                        "/api/users/v1/check-duplicate",
+                        "/api/users/v1/find-id",
+                        "/api/users/v1/find-password",
+                        "/api/users/v1/reset-password"
                     ).permitAll()
                     .anyRequest().authenticated()
             }
