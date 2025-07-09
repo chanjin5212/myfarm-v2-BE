@@ -40,7 +40,7 @@ out/
 .kotlin
 
 ### Secret configuration files ###
-application-secret.yml
+application-secrets.yml
 application-local.yml
 
 ### HTTP request files ###
