@@ -38,7 +38,6 @@ class UsersController(
         return meService.getCurrentUser(myfarmAuth.userId)
     }
 
-
     @PostMapping("/register")
     fun register(
         @RequestBody request: Register.Request

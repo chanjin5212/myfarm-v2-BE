@@ -100,7 +100,9 @@ class SecurityConfig(
                         "/api/users/v1/check-duplicate",
                         "/api/users/v1/find-id",
                         "/api/users/v1/find-password",
-                        "/api/users/v1/reset-password"
+                        "/api/users/v1/reset-password",
+                        "/api/users/v1/me",
+                        "/api/products/v1/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             }

@@ -21,7 +21,6 @@ abstract class GetProduct {
         val harvestDate: LocalDate?,
         val storageMethod: String?,
         val isOrganic: Boolean,
-        val orderCount: Int,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime,
         val images: List<ProductImageInfo>,

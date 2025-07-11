@@ -40,8 +40,6 @@ data class Products(
 
     val isOrganic: Boolean = false,
 
-    val orderCount: Int = 0,
-
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     val updatedAt: LocalDateTime = LocalDateTime.now()

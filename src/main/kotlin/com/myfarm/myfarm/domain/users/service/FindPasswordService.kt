@@ -12,7 +12,6 @@ class FindPasswordService(
 
     @Transactional
     fun findPassword(request: FindPassword.Request): FindPassword.Response {
-
         usersRepository.findByEmailAndLoginId(request.email, request.loginId)
             ?: return FindPassword.Response(available = false)
 

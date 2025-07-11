@@ -2,6 +2,7 @@ package com.myfarm.myfarm.domain.products.service
 
 import com.myfarm.myfarm.adapter.`in`.web.products.message.ListProduct
 import com.myfarm.myfarm.domain.categories.port.CategoriesRepository
+import com.myfarm.myfarm.domain.productreviews.port.ProductReviewsRepository
 import com.myfarm.myfarm.domain.products.entity.Products
 import com.myfarm.myfarm.domain.products.port.ProductsRepository
 import org.springframework.stereotype.Service
@@ -10,7 +11,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class ListProductService(
     private val productsRepository: ProductsRepository,
-    private val categoriesRepository: CategoriesRepository
+    private val categoriesRepository: CategoriesRepository,
+    private val productReviewsRepository: ProductReviewsRepository
 ) {
 
     @Transactional(readOnly = true)
@@ -47,12 +49,21 @@ class ListProductService(
         )
 
         val productSummaries = productsPage.content.map { product ->
+            val activeReviews = productReviewsRepository.findByProductIdAndStatus(product.id, "active")
+            val reviewCount = activeReviews.size.toLong()
+            val averageRating = if (activeReviews.isNotEmpty()) {
+                activeReviews.map { it.rating }.average()
+            } else {
+                0.0
+            }
+
             ListProduct.ProductSummary(
                 id = product.id,
                 name = product.name,
                 price = product.price,
                 thumbnailUrl = product.thumbnailUrl,
-                orderCount = product.orderCount,
+                reviewCount = reviewCount,
+                averageRating = averageRating,
                 createdAt = product.createdAt
             )
         }

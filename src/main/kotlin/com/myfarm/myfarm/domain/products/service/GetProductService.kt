@@ -72,7 +72,6 @@ class GetProductService(
             harvestDate = product.harvestDate,
             storageMethod = product.storageMethod,
             isOrganic = product.isOrganic,
-            orderCount = product.orderCount,
             createdAt = product.createdAt,
             updatedAt = product.updatedAt,
             images = images,

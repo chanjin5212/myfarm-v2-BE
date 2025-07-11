@@ -25,7 +25,8 @@ abstract class ListProduct {
         val name: String,
         val price: Int,
         val thumbnailUrl: String?,
-        val orderCount: Int,
+        val reviewCount: Long,
+        val averageRating: Double,
         val createdAt: LocalDateTime
     )
 }

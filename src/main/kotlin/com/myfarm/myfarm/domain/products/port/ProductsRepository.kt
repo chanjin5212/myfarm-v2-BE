@@ -35,7 +35,6 @@ class ProductsRepository(
         return productsJpaRepository.findByStatusAndSellerId(status, sellerId)
     }
 
-    // QueryDSL을 사용한 복합 조건 검색
     fun findByFilters(
         status: Products.Status = Products.Status.ACTIVE,
         categoryId: UUID? = null,

@@ -55,9 +55,9 @@ class ProductsAdapter(
         return when (sortBy) {
             "latest" -> listOf(products.createdAt.desc())
             "oldest" -> listOf(products.createdAt.asc())
-            "popular" -> listOf(products.orderCount.desc())
             "priceAsc" -> listOf(products.price.asc())
             "priceDesc" -> listOf(products.price.desc())
+            "price" -> listOf(products.price.desc())
             "name" -> listOf(products.name.asc())
             else -> listOf(products.createdAt.desc())
         }

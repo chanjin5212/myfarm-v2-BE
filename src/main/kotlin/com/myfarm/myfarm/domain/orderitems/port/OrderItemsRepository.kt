@@ -54,4 +54,8 @@ class OrderItemsRepository(
     fun deleteByOrderId(orderId: UUID) {
         orderItemsJpaRepository.deleteByOrderId(orderId)
     }
+
+    fun existsByOrderIdsAndProductId(orderIds: List<UUID>, productId: UUID): Boolean {
+        return orderItemsJpaRepository.existsByOrderIdInAndProductId(orderIds, productId)
+    }
 }

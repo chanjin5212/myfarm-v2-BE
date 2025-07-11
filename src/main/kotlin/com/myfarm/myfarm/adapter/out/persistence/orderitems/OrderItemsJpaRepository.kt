@@ -15,4 +15,6 @@ interface OrderItemsJpaRepository : JpaRepository<OrderItems, UUID> {
     fun countByOrderId(orderId: UUID): Int // ← 이 메서드 추가됨
 
     fun deleteByOrderId(orderId: UUID)
+
+    fun existsByOrderIdInAndProductId(orderIds: List<UUID>, productId: UUID): Boolean
 }

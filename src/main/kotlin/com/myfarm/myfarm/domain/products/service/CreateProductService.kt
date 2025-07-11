@@ -66,7 +66,6 @@ class CreateProductService(
             harvestDate = request.harvestDate,
             storageMethod = request.storageMethod,
             isOrganic = request.isOrganic,
-            orderCount = 0,
             createdAt = now,
             updatedAt = now
         )
