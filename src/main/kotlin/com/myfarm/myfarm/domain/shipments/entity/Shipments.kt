@@ -25,7 +25,6 @@ data class Shipments(
 
     val status: String = "ready",
 
-
     val shippedAt: LocalDateTime? = null,
 
     val deliveredAt: LocalDateTime? = null,

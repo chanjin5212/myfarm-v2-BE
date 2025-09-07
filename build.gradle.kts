@@ -41,7 +41,6 @@ dependencies {
     kapt("com.querydsl:querydsl-apt:5.1.0:jakarta")
 
     implementation("org.springframework.boot:spring-boot-starter-mail")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")

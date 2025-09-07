@@ -15,11 +15,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.http.HttpMethod
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -33,7 +31,6 @@ import org.springframework.web.cors.CorsConfigurationSource
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
 class SecurityConfig(
     private val usersRepository: UsersRepository,
     private val objectMapper: ObjectMapper,
@@ -95,8 +92,9 @@ class SecurityConfig(
             }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/api/email-verifications/v1/**").permitAll()
                     .requestMatchers(
+                        "/api/email-verifications/v1/send",
+                        "/api/email-verifications/v1/verify",
                         "/api/users/v1/register",
                         "/api/users/v1/login",
                         "/api/users/v1/check-duplicate",
@@ -106,8 +104,6 @@ class SecurityConfig(
                         "/api/users/v1/me",
                         "/api/products/v1/**"
                     ).permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/product-reviews/v1/**").permitAll()
-                    .requestMatchers("/api/admin/v1/**").authenticated()
                     .anyRequest().authenticated()
             }
             .oauth2Login { oauth2 ->

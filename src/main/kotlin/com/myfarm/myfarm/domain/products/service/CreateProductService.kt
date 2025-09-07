@@ -2,7 +2,6 @@ package com.myfarm.myfarm.domain.products.service
 
 import com.myfarm.myfarm.adapter.`in`.web.products.message.CreateProduct
 import com.myfarm.myfarm.domain.categories.port.CategoriesRepository
-import com.myfarm.myfarm.domain.common.service.FileUploadService
 import com.myfarm.myfarm.domain.productattributes.entity.ProductAttributes
 import com.myfarm.myfarm.domain.productattributes.port.ProductAttributesRepository
 import com.myfarm.myfarm.domain.productimages.entity.ProductImages
@@ -25,8 +24,7 @@ class CreateProductService(
     private val productOptionsRepository: ProductOptionsRepository,
     private val productAttributesRepository: ProductAttributesRepository,
     private val productTagsRepository: ProductTagsRepository,
-    private val categoriesRepository: CategoriesRepository,
-    private val fileUploadService: FileUploadService
+    private val categoriesRepository: CategoriesRepository
 ) {
 
     @Transactional
@@ -42,6 +40,11 @@ class CreateProductService(
         categoriesRepository.findById(request.categoryId)
             ?: throw IllegalArgumentException("존재하지 않는 카테고리입니다")
 
+        val thumbnailCount = request.images.count { it.isThumbnail }
+        if (thumbnailCount > 1) {
+            throw IllegalArgumentException("썸네일 이미지는 1개만 설정할 수 있습니다")
+        }
+
         val defaultOptionCount = request.options.count { it.isDefault }
         if (defaultOptionCount > 1) {
             throw IllegalArgumentException("기본 옵션은 1개만 설정할 수 있습니다")
@@ -49,20 +52,6 @@ class CreateProductService(
 
         val now = LocalDateTime.now()
         val productId = UUID.randomUUID()
-
-        // 파일 업로드 처리
-        val uploadedImages = if (request.imageFiles.isNotEmpty()) {
-            request.imageFiles.mapIndexed { index, file ->
-                val imageUrl = fileUploadService.uploadProductImage(file, productId)
-                CreateProduct.ProductImageInfo(
-                    imageUrl = imageUrl,
-                    isThumbnail = index == 0, // 첫 번째 이미지를 썸네일로 설정
-                    sortOrder = index
-                )
-            }
-        } else {
-            emptyList()
-        }
 
         val product = Products(
             id = productId,
@@ -72,7 +61,7 @@ class CreateProductService(
             status = request.status,
             sellerId = userId,
             categoryId = request.categoryId,
-            thumbnailUrl = uploadedImages.firstOrNull()?.imageUrl,
+            thumbnailUrl = findThumbnailUrl(request.images),
             origin = request.origin,
             harvestDate = request.harvestDate,
             storageMethod = request.storageMethod,
@@ -83,15 +72,14 @@ class CreateProductService(
 
         val savedProduct = productsRepository.save(product)
 
-        // 업로드된 이미지들을 DB에 저장
-        if (uploadedImages.isNotEmpty()) {
-            val productImages = uploadedImages.map { imageInfo ->
+        if (request.images.isNotEmpty()) {
+            val productImages = request.images.mapIndexed { index, imageRequest ->
                 ProductImages(
                     id = UUID.randomUUID(),
                     productId = productId,
-                    imageUrl = imageInfo.imageUrl,
-                    isThumbnail = imageInfo.isThumbnail,
-                    sortOrder = imageInfo.sortOrder,
+                    imageUrl = imageRequest.imageUrl,
+                    isThumbnail = imageRequest.isThumbnail,
+                    sortOrder = imageRequest.sortOrder.takeIf { it > 0 } ?: index,
                     createdAt = now
                 )
             }
@@ -144,5 +132,10 @@ class CreateProductService(
             success = true,
             productId = savedProduct.id
         )
+    }
+
+    private fun findThumbnailUrl(images: List<CreateProduct.ProductImageRequest>): String? {
+        return images.firstOrNull { it.isThumbnail }?.imageUrl
+            ?: images.firstOrNull()?.imageUrl
     }
 }
