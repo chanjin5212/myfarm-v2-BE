@@ -42,11 +42,16 @@ class CreateOrderService(
             throw IllegalArgumentException("주문 상품이 없습니다")
         }
 
+        val now = LocalDateTime.now()
+
+        // 재고 확인 및 차감을 위한 옵션 정보 수집
+        val optionsToUpdate = mutableListOf<Pair<UUID, Int>>()
+
         request.orderItems.forEach { orderItem ->
             productsRepository.findById(orderItem.productId)
                 ?: throw IllegalArgumentException("존재하지 않는 상품입니다: ${orderItem.productId}")
 
-            orderItem.productOptionId.let { optionId ->
+            val productOption = orderItem.productOptionId.let { optionId ->
                 productOptionsRepository.findById(optionId)
                     ?: throw IllegalArgumentException("존재하지 않는 상품 옵션입니다: $optionId")
             }
@@ -58,9 +63,29 @@ class CreateOrderService(
             if (orderItem.price < 0) {
                 throw IllegalArgumentException("상품 가격은 0원 이상이어야 합니다")
             }
+
+            // 재고 확인
+            if (productOption.stock < orderItem.quantity) {
+                throw IllegalArgumentException(
+                    "재고가 부족합니다. 상품 옵션: ${productOption.optionValue}, " +
+                    "현재 재고: ${productOption.stock}, 주문 수량: ${orderItem.quantity}"
+                )
+            }
+
+            // 차감할 재고 정보 저장
+            optionsToUpdate.add(productOption.id to orderItem.quantity)
         }
 
-        val now = LocalDateTime.now()
+        // 재고 차감 실행
+        optionsToUpdate.forEach { (optionId, quantity) ->
+            val option = productOptionsRepository.findById(optionId)!!
+            val updatedOption = option.copy(
+                stock = option.stock - quantity,
+                updatedAt = now
+            )
+            productOptionsRepository.save(updatedOption)
+        }
+
         val orderId = UUID.randomUUID()
 
         val totalAmount = request.orderItems.sumOf { it.price * it.quantity }

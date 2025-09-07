@@ -2,8 +2,10 @@ package com.myfarm.myfarm.domain.orders.service
 
 import com.myfarm.myfarm.adapter.`in`.web.orders.message.CancelOrder
 import com.myfarm.myfarm.domain.common.checkOwnership
+import com.myfarm.myfarm.domain.orderitems.port.OrderItemsRepository
 import com.myfarm.myfarm.domain.orders.entity.Orders
 import com.myfarm.myfarm.domain.orders.port.OrdersRepository
+import com.myfarm.myfarm.domain.productoptions.port.ProductOptionsRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -11,7 +13,9 @@ import java.util.UUID
 
 @Service
 class CancelOrderService(
-    private val ordersRepository: OrdersRepository
+    private val ordersRepository: OrdersRepository,
+    private val orderItemsRepository: OrderItemsRepository,
+    private val productOptionsRepository: ProductOptionsRepository
 ) {
 
     @Transactional
@@ -31,6 +35,9 @@ class CancelOrderService(
 
         // TODO: 결제 취소 API 호출
         // paymentCancelService.cancelPayment(order.tid, request.cancelReason)
+
+        // 재고 복구 처리
+        restoreStock(order.id)
 
         val cancelledOrder = Orders(
             id = order.id,
@@ -57,6 +64,21 @@ class CancelOrderService(
             success = true,
             message = "주문이 성공적으로 취소되었습니다."
         )
+    }
+
+    private fun restoreStock(orderId: UUID) {
+        val orderItems = orderItemsRepository.findByOrderId(orderId)
+        
+        orderItems.forEach { orderItem ->
+            val option = productOptionsRepository.findById(orderItem.productOptionId)
+                ?: return@forEach // 옵션이 삭제된 경우 스킵
+            
+            val restoredOption = option.copy(
+                stock = option.stock + orderItem.quantity,
+                updatedAt = LocalDateTime.now()
+            )
+            productOptionsRepository.save(restoredOption)
+        }
     }
 
     private fun isCancellable(order: Orders): Boolean {

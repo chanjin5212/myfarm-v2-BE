@@ -14,17 +14,19 @@ spring:
     password: ${spring.datasource.password}
     driver-class-name: ${spring.datasource.driver-class-name}
     hikari:
-      maximum-pool-size: 3        # Supabase 무료는 60개 제한이므로 낮게 설정
-      minimum-idle: 2
-      idle-timeout: 300000        # 5분
-      connection-timeout: 20000   # 20초
-      max-lifetime: 1200000       # 20분
-      leak-detection-threshold: 60000  # 연결 누수 감지
-      # Prepared statement 캐시 비활성화 (PostgreSQL 에러 방지)
+      maximum-pool-size: 15        # 최소 1개로 설정
+      minimum-idle: 5             # 최소 연결 0개
+      idle-timeout: 30000         # 30초로 단축
+      connection-timeout: 5000    # 5초로 단축
+      max-lifetime: 60000         # 1분으로 단축
+      leak-detection-threshold: 15000  # 연결 누수 감지 15초
+      # Prepared statement 캐시 완전 비활성화
       data-source-properties:
         cachePrepStmts: false
         prepStmtCacheSize: 0
         prepStmtCacheSqlLimit: 0
+        prepareThreshold: 0
+        preparedStatementCacheQueries: 0
   jpa:
     open-in-view: false
     hibernate:

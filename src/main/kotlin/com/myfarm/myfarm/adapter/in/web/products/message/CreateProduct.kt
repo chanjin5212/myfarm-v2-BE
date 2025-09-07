@@ -1,6 +1,7 @@
 package com.myfarm.myfarm.adapter.`in`.web.products.message
 
 import com.myfarm.myfarm.domain.products.entity.Products
+import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDate
 import java.util.UUID
 
@@ -15,7 +16,7 @@ abstract class CreateProduct {
         val harvestDate: LocalDate? = null,
         val storageMethod: String? = null,
         val isOrganic: Boolean = false,
-        val images: List<ProductImageRequest> = emptyList(),
+        val imageFiles: List<MultipartFile> = emptyList(),
         val options: List<ProductOptionRequest> = emptyList(),
         val attributes: List<ProductAttributeRequest> = emptyList(),
         val tags: List<String> = emptyList()
@@ -38,6 +39,12 @@ abstract class CreateProduct {
     data class ProductAttributeRequest(
         val attributeName: String,
         val attributeValue: String
+    )
+
+    data class ProductImageInfo(
+        val imageUrl: String,
+        val isThumbnail: Boolean,
+        val sortOrder: Int
     )
 
     data class Response(

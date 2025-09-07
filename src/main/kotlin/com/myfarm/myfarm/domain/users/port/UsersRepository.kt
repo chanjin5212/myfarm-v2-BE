@@ -41,4 +41,12 @@ class UsersRepository(
     fun findByEmailAndLoginId(email: String, loginId: String): Users? {
         return usersJpaRepository.findByEmailAndLoginId(email, loginId)
     }
+
+    fun findAll(): List<Users> {
+        return usersJpaRepository.findAll()
+    }
+
+    fun count(): Long {
+        return usersJpaRepository.count()
+    }
 }
